@@ -1,0 +1,25 @@
+/* Design tokens for post-call-processor.
+ *
+ * Canonical token NAMES only — see docs/DESIGN.md for meaning and the design
+ * system rules. Exact hex values are intentionally NOT set in slice 00
+ * (scaffolding); they are chosen and recorded in docs/DESIGN.md when the first
+ * real UI slice is built. Uncomment and fill each value at that point.
+ *
+ * Light mode lives in :root; dark mode overrides go in the media query below.
+ */
+
+:root {
+  /* --color-bg:        page background (near-white light / near-black dark) */
+  /* --color-fg:        body text, high contrast against bg */
+  /* --color-fg-muted:  secondary text (labels, timestamps, metadata) */
+  /* --color-border:    dividers, input borders, table lines */
+  /* --color-hero:      neutral workhorse for most UI chrome (buttons, active states) */
+  /* --color-accent:    the ONE accent — CTAs and status highlights only */
+  /* --color-danger:    errors and destructive actions only */
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    /* dark-mode overrides — same accent hue, adjusted lightness (see DESIGN.md) */
+  }
+}

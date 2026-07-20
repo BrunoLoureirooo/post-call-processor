@@ -1,0 +1,29 @@
+# syntax=docker/dockerfile:1
+
+# (1) Base image: slim Python 3.12 — same major.minor as our .python-version pin,
+#     so the container and your local venv run the same interpreter.
+FROM python:3.12-slim
+
+# (2) Bring uv in as a prebuilt static binary from its official image. No pip
+#     bootstrap, no compiler — just copy the binary onto PATH.
+COPY --from=ghcr.io/astral-sh/uv:latest /uv /uvx /bin/
+
+WORKDIR /app
+
+# (3) Layer caching: copy ONLY the dependency manifests first and install. This
+#     layer is the slow one, and Docker will reuse it on rebuilds until the lock
+#     or pyproject actually changes — code edits below won't bust it.
+COPY src/backend/pyproject.toml src/backend/uv.lock ./
+RUN uv sync --frozen --no-dev
+#     --frozen  = install exactly what uv.lock says, fail if it's stale
+#     --no-dev  = skip pytest/mypy; they don't belong in a runtime image
+
+# Application code copied after deps (it changes often, so keep it in a later layer).
+COPY src/backend/app ./app
+
+# (4) Put the venv uv created on PATH, and /app on PYTHONPATH so `app.main` imports.
+ENV PATH="/app/.venv/bin:$PATH" \
+    PYTHONPATH="/app"
+
+EXPOSE 8000
+CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000"]

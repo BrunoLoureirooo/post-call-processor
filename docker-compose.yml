@@ -1,0 +1,81 @@
+# Local, all-in-one environment: the ONLY way to exercise real async processing
+# end-to-end (api enqueues -> worker consumes -> Ollama -> Postgres -> email).
+# Inert in slice 00 — services are wired but not smoke-tested yet.
+
+# Shared backend environment, defined once via a YAML anchor (the `x-` prefix is
+# Compose's convention for reusable extension blocks) and merged into api + worker.
+x-backend-env: &backend-env
+  DATABASE_URL: postgresql+psycopg://pcp:pcp@postgres:5432/pcp
+  CELERY_BROKER_URL: redis://redis:6379/0
+  CELERY_RESULT_BACKEND: redis://redis:6379/1
+  OLLAMA_BASE_URL: http://ollama:11434
+
+services:
+  # --- infrastructure ---------------------------------------------------------
+  postgres:
+    image: postgres:16
+    environment:
+      POSTGRES_USER: pcp
+      POSTGRES_PASSWORD: pcp        # local-dev only; real secrets handled in the k8s study
+      POSTGRES_DB: pcp
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U pcp"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  redis:
+    image: redis:7
+    ports:
+      - "6379:6379"
+
+  ollama:
+    image: ollama/ollama
+    ports:
+      - "11434:11434"
+    volumes:
+      - ollama_models:/root/.ollama    # persist pulled models across restarts
+
+  # --- our services -----------------------------------------------------------
+  api:
+    build:
+      context: .                      # repo root, so the image can read src/backend
+      dockerfile: docker/Dockerfile.api
+    environment: *backend-env
+    ports:
+      - "8000:8000"
+    depends_on:
+      postgres:
+        condition: service_healthy    # wait until pg_isready passes
+      redis:
+        condition: service_started
+
+  worker:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile.worker
+    environment: *backend-env
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_started
+      ollama:
+        condition: service_started
+
+  frontend:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile.frontend
+    ports:
+      - "4321:4321"
+    depends_on:
+      - api
+
+volumes:
+  postgres_data:
+  ollama_models:

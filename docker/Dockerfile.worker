@@ -1,0 +1,24 @@
+# syntax=docker/dockerfile:1
+
+# Identical build to Dockerfile.api — same interpreter, same locked deps — but a
+# different entrypoint. Kept as its own image so api and worker stay independently
+# deployable (matters for the later k8s/AWS study).
+FROM python:3.12-slim
+
+COPY --from=ghcr.io/astral-sh/uv:latest /uv /uvx /bin/
+
+WORKDIR /app
+
+COPY src/backend/pyproject.toml src/backend/uv.lock ./
+RUN uv sync --frozen --no-dev
+
+COPY src/backend/app ./app
+
+ENV PATH="/app/.venv/bin:$PATH" \
+    PYTHONPATH="/app"
+
+# No EXPOSE: a Celery worker pulls jobs from Redis, it doesn't listen on a port.
+# NOTE: app.tasks.celery_app does not exist yet — the Celery app instance is added
+# in a later slice. This container will not start successfully until then (inert
+# in slice 00, by design).
+CMD ["celery", "-A", "app.tasks.celery_app", "worker", "--loglevel=info"]
