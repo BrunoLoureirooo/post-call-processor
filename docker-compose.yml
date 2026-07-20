@@ -45,9 +45,16 @@ services:
     build:
       context: .                      # repo root, so the image can read src/backend
       dockerfile: docker/Dockerfile.api
-    environment: *backend-env
+    # dev override: reload on host edits (via the bind-mount below); replaces image CMD
+    command: ["uvicorn", "app.main:app", "--reload", "--host", "0.0.0.0", "--port", "8000"]
+    environment:
+      <<: *backend-env                # merge the shared block...
+      FRONTEND_ORIGIN: http://localhost:4321   # ...+ the CORS origin the API reads
     ports:
       - "8000:8000"
+    volumes:
+      - ./src/backend:/app            # host source live in the container
+      - /app/.venv                    # anon volume: keep the image's venv, don't shadow it
     depends_on:
       postgres:
         condition: service_healthy    # wait until pg_isready passes
@@ -71,8 +78,15 @@ services:
     build:
       context: .
       dockerfile: docker/Dockerfile.frontend
+    # dev override: Astro dev server + HMR against the mounted source (matches image CMD)
+    command: ["pnpm", "dev", "--host", "0.0.0.0"]
+    environment:
+      PUBLIC_API_BASE_URL: http://localhost:8000   # exposed to the browser via import.meta.env
     ports:
       - "4321:4321"
+    volumes:
+      - ./src/frontend:/app
+      - /app/node_modules            # anon volume: keep the image's node_modules
     depends_on:
       - api
 
