@@ -41,7 +41,7 @@ docker compose up                  # runs api, worker (Celery), redis, postgres,
 
 ## File conventions
 
-See [docs/DESIGN.md](docs/DESIGN.md) — canonical visual system: tokens, typography, motion.
+See [DESIGN.md](DESIGN.md) — canonical visual system: tokens, typography, motion.
 See [docs/architecture.md](docs/architecture.md) — repo skeleton, dependency, and container-wiring decisions for the scaffolding slice.
 Each small, independently-shippable slice gets its own `docs/features/NN-<slug>.md` (two-digit build-order prefix, e.g. `00-scaffolding.md`, `01-<first-slice>.md`) — plan first, then implementation context. Copy [docs/features/_TEMPLATE.md](docs/features/_TEMPLATE.md) per slice; never combine slices into one file or let one file span the whole app.
 
@@ -70,7 +70,7 @@ A transcript upload creates a job row, enqueues a Celery task, and returns immed
 
 ## Design rules
 
-Fonts, palette, and motion defaults are documented in [docs/DESIGN.md](docs/DESIGN.md) — a clean, minimal, functional look with a neutral palette and one accent color, restrained motion. Never introduce a second accent hue or non-essential animation without updating DESIGN.md first.
+Fonts, palette, and motion defaults are documented in [DESIGN.md](DESIGN.md) — a clean, minimal, functional look with a neutral palette and one accent color, restrained motion. Never introduce a second accent hue or non-essential animation without updating DESIGN.md first.
 
 ## Agent / skill rules
 

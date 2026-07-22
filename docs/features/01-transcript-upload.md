@@ -285,7 +285,7 @@ Expected: `200` with `access-control-allow-origin: http://localhost:4321`.
 
 ### Task 3 — Design tokens (first real UI work) — `/impeccable` + `/design-motion-principles`
 
-**Files:** Modify `src/frontend/src/styles/tokens.css`; Modify `docs/DESIGN.md`.
+**Files:** Modify `src/frontend/src/styles/tokens.css`; Modify `DESIGN.md`.
 
 This is where the palette becomes concrete (DESIGN.md says hex is chosen at the first
 UI slice). Run the visual skills to pick values, not by guesswork.
@@ -371,3 +371,12 @@ set Status → live).
   hides the image's `.venv`/`node_modules` unless the anonymous volumes are present.
 - **Worker still crash-loops** — `app.tasks.celery_app` doesn't exist yet; run
   `docker compose up api frontend` for this slice, not the whole stack.
+- **Config duplicated client↔server (FOLLOW-UP, not yet resolved)** — the size cap
+  and allowed extensions live in BOTH `app/config.py` (authoritative) and
+  `UploadForm.tsx` (UX mirror), kept in sync by hand. Deliberately left duplicated to
+  keep this slice thin; the server re-validates so drift is low-risk. When it's worth
+  consolidating, two evaluated options: (a) one compose YAML anchor feeding
+  `MAX_UPLOAD_BYTES`/`ALLOWED_EXTENSIONS` + `PUBLIC_*` twins (note: `astro build`
+  inlines `PUBLIC_*` at build time), or (b) a `GET /api/config` the client fetches at
+  runtime (no drift possible, costs a request + fallback). The endpoint path stays in
+  code as the API contract, not env.

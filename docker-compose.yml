@@ -78,8 +78,10 @@ services:
     build:
       context: .
       dockerfile: docker/Dockerfile.frontend
-    # dev override: Astro dev server + HMR against the mounted source (matches image CMD)
-    command: ["pnpm", "dev", "--host", "0.0.0.0"]
+    # dev override: Astro dev server + HMR against the mounted source.
+    # --force: the src bind-mount shares Astro's .astro/dev.json lock with the host,
+    # so a stale lock from a prior/host run would otherwise block startup.
+    command: ["pnpm", "dev", "--host", "0.0.0.0", "--force"]
     environment:
       PUBLIC_API_BASE_URL: http://localhost:8000   # exposed to the browser via import.meta.env
     ports:

@@ -1,25 +1,43 @@
 /* Design tokens for post-call-processor.
  *
- * Canonical token NAMES only — see docs/DESIGN.md for meaning and the design
- * system rules. Exact hex values are intentionally NOT set in slice 00
- * (scaffolding); they are chosen and recorded in docs/DESIGN.md when the first
- * real UI slice is built. Uncomment and fill each value at that point.
+ * See DESIGN.md for what each token means and the rules governing its use.
+ * Values are OKLCH (perceptually uniform — equal L reads as equal lightness
+ * across hues, which is why the ramps stay even). The hex in each comment is
+ * the sRGB rendering; every value is verified in-gamut.
  *
- * Light mode lives in :root; dark mode overrides go in the media query below.
+ * Contrast ratios below are measured, not estimated, and meet WCAG AA in both
+ * modes. Do not lighten the muted or border-strong values without re-checking.
  */
 
 :root {
-  /* --color-bg:        page background (near-white light / near-black dark) */
-  /* --color-fg:        body text, high contrast against bg */
-  /* --color-fg-muted:  secondary text (labels, timestamps, metadata) */
-  /* --color-border:    dividers, input borders, table lines */
-  /* --color-hero:      neutral workhorse for most UI chrome (buttons, active states) */
-  /* --color-accent:    the ONE accent — CTAs and status highlights only */
-  /* --color-danger:    errors and destructive actions only */
+  color-scheme: light dark;
+
+  /* Surface + text */
+  --color-bg: oklch(1 0 0);                      /* #ffffff */
+  --color-fg: oklch(0.18 0.006 215);             /* #0f1213 — 18.79:1 on bg */
+  --color-fg-muted: oklch(0.5 0.012 215);        /* #5c6567 —  5.97:1 on bg */
+
+  /* Lines — two jobs, two values */
+  --color-border: oklch(0.88 0.006 215);         /* #d3d8da — decorative dividers only */
+  --color-border-strong: oklch(0.64 0.01 215);   /* #868e90 —  3.35:1, interactive control edges */
+
+  /* Chrome + signals */
+  --color-hero: oklch(0.25 0.01 215);            /* #1c2325 — UI chrome; bg label 15.96:1 */
+  --color-accent: oklch(0.47 0.08 215);          /* #0b6677 —  6.62:1; CTAs + status only */
+  --color-danger: oklch(0.52 0.19 27);           /* #be2323 —  6.08:1; errors only */
 }
 
 @media (prefers-color-scheme: dark) {
   :root {
-    /* dark-mode overrides — same accent hue, adjusted lightness (see DESIGN.md) */
+    --color-bg: oklch(0.14 0.006 215);           /* #070a0b */
+    --color-fg: oklch(0.96 0.004 215);           /* #eff2f3 — 17.73:1 on bg */
+    --color-fg-muted: oklch(0.72 0.012 215);     /* #9da7a9 —  8.05:1 on bg */
+
+    --color-border: oklch(0.3 0.01 215);         /* #282f31 */
+    --color-border-strong: oklch(0.5 0.012 215); /* #5c6567 —  3.33:1 */
+
+    --color-hero: oklch(0.93 0.005 215);         /* #e4e9ea — bg label 16.21:1 */
+    --color-accent: oklch(0.72 0.1 215);         /* #4db4cc —  8.29:1 */
+    --color-danger: oklch(0.66 0.17 27);         /* #e86156 —  5.92:1 */
   }
 }

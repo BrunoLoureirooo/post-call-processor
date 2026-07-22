@@ -1,17 +1,55 @@
 ---
-
+import "../styles/tokens.css";
+import UploadForm from "../components/UploadForm";
 ---
 
 <html lang="en">
-	<head>
-		<meta charset="utf-8" />
-		<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-		<link rel="icon" href="/favicon.ico" />
-		<meta name="viewport" content="width=device-width" />
-		<meta name="generator" content={Astro.generator} />
-		<title>Astro</title>
-	</head>
-	<body>
-		<h1>Astro</h1>
-	</body>
+  <head>
+    <meta charset="utf-8" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="icon" href="/favicon.ico" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="generator" content={Astro.generator} />
+    <title>post-call-processor</title>
+  </head>
+  <body>
+    <main class="page">
+      <header class="page-head">
+        <h1>Upload a transcript</h1>
+        <p>Add a call transcript to summarize and turn into tickets.</p>
+      </header>
+      <UploadForm client:load />
+    </main>
+  </body>
 </html>
+
+<style is:global>
+  * {
+    box-sizing: border-box;
+  }
+  body {
+    margin: 0;
+    background: var(--color-bg);
+    color: var(--color-fg);
+    font: 400 16px/1.5 -apple-system, BlinkMacSystemFont, "Segoe UI", Inter, sans-serif;
+  }
+  .page {
+    max-width: 960px;
+    margin: 0 auto;
+    padding: 64px 24px;
+  }
+  .page-head {
+    margin-bottom: 32px;
+  }
+  .page-head h1 {
+    margin: 0 0 8px;
+    font-size: 28px;
+    font-weight: 600;
+    letter-spacing: -0.01em;
+  }
+  .page-head p {
+    margin: 0;
+    font-size: 16px;
+    color: var(--color-fg-muted);
+  }
+</style>

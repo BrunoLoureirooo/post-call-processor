@@ -1,0 +1,165 @@
+/* UploadForm — motion weighting: Emil primary (restraint/speed), Jakub secondary.
+ * All colour via tokens.css. Only transform / opacity / paint props animate.
+ * ease-out-quart, ~150ms, per DESIGN.md; reduced-motion collapses to instant. */
+
+.uf {
+  --uf-ease: cubic-bezier(0.25, 1, 0.5, 1); /* ease-out-quart */
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  max-width: 480px;
+  font: 400 16px/1.5 -apple-system, BlinkMacSystemFont, "Segoe UI", Inter, sans-serif;
+  color: var(--color-fg);
+}
+
+/* Dropzone is a real <button>: keyboard focus + Enter/Space for free. */
+.uf-zone {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 40px 24px;
+  border: 1.5px dashed var(--color-border-strong);
+  border-radius: 10px;
+  background: var(--color-bg);
+  color: var(--color-fg);
+  text-align: center;
+  cursor: pointer;
+  transition: border-color 150ms var(--uf-ease), background-color 150ms var(--uf-ease);
+}
+
+.uf-zone:hover {
+  border-color: var(--color-accent);
+}
+
+/* Drag-over: functional feedback ("you may drop here") — colour only, no layout. */
+.uf-zone[data-dragging="true"] {
+  border-color: var(--color-accent);
+  border-style: solid;
+  background: color-mix(in oklab, var(--color-accent) 8%, var(--color-bg));
+}
+
+.uf-zone:focus-visible {
+  outline: 2px solid var(--color-accent);
+  outline-offset: 2px;
+}
+
+.uf-zone-title {
+  font-weight: 600;
+  font-size: 16px;
+}
+
+.uf-zone-hint {
+  font-size: 14px;
+  color: var(--color-fg-muted);
+}
+
+.uf-input {
+  display: none;
+}
+
+.uf-actions {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.uf-filename {
+  font-size: 14px;
+  color: var(--color-fg-muted);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.uf-submit {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 18px;
+  border: none;
+  border-radius: 8px;
+  background: var(--color-hero);
+  color: var(--color-bg);
+  font: inherit;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: transform 150ms var(--uf-ease), opacity 150ms var(--uf-ease);
+}
+
+.uf-submit:hover:not(:disabled) {
+  opacity: 0.9;
+}
+
+/* Emil tip #1: subtle press-scale for tactile feedback. */
+.uf-submit:active:not(:disabled) {
+  transform: scale(0.97);
+}
+
+.uf-submit:focus-visible {
+  outline: 2px solid var(--color-accent);
+  outline-offset: 2px;
+}
+
+.uf-submit:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.uf-spinner {
+  width: 14px;
+  height: 14px;
+  border: 2px solid color-mix(in oklab, var(--color-bg) 40%, transparent);
+  border-top-color: var(--color-bg);
+  border-radius: 50%;
+  animation: uf-spin 700ms linear infinite; /* linear: correct easing for a loop */
+}
+
+@keyframes uf-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* Result: enter = opacity + small translateY (Jakub recipe, blur dropped for restraint). */
+.uf-status {
+  min-height: 1.5em;
+}
+
+.uf-result {
+  margin: 0;
+  font-size: 14px;
+  animation: uf-enter 200ms var(--uf-ease);
+}
+
+.uf-result-ok {
+  color: var(--color-fg);
+}
+
+.uf-result-error {
+  color: var(--color-danger);
+}
+
+@keyframes uf-enter {
+  from {
+    opacity: 0;
+    transform: translateY(4px);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .uf-zone,
+  .uf-submit {
+    transition: none;
+  }
+  .uf-submit:active:not(:disabled) {
+    transform: none;
+  }
+  .uf-spinner {
+    animation: none; /* text "Uploading…" still carries the meaning */
+  }
+  .uf-result {
+    animation: none;
+  }
+}
